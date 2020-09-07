@@ -73,7 +73,7 @@ class AllureReporter {
     }
 
     prerequest(err, args){
-        if(args.executions != undefined && _.isArray(args.executions) && args.executions.length > 0){
+        if(args.executions != https://github.com/alexwishes/newman-reporter-allure.gitundefined && _.isArray(args.executions) && args.executions.length > 0){
             this.runningItems[this.runningItems.length - 1].pm_item.prerequest = args.executions[0].script.exec.join('\n');
         }
     }
@@ -383,8 +383,8 @@ class AllureReporter {
         return string
             .replace('\n', '')
             .replace('\r', '')
-            .replace('\"', '"')
-            .replace(/[\u0100-\uffff]/g, (c) => `|0x${c.charCodeAt(0).toString(16).padStart(4, "0")}`);
+            .replace('\"', '"');
+            //.replace(/[\u0100-\uffff]/g, (c) => `|0x${c.charCodeAt(0).toString(16).padStart(4, "0")}`);
     }
 }
 
