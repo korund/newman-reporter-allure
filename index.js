@@ -5,7 +5,6 @@ const LabelName = require("allure-js-commons").LabelName;
 const Stage = require("allure-js-commons").Allure;
 const createHash = require("crypto").createHash;
 const _ = require('lodash');
-// const WrappedStep = require("./src/WrappedStep");
 
 class AllureReporter {
     constructor(emitter, reporterOptions, options) {
@@ -73,7 +72,7 @@ class AllureReporter {
     }
 
     prerequest(err, args){
-        if(args.executions != https://github.com/alexwishes/newman-reporter-allure.gitundefined && _.isArray(args.executions) && args.executions.length > 0){
+        if(args.executions != undefined && _.isArray(args.executions) && args.executions.length > 0){
             this.runningItems[this.runningItems.length - 1].pm_item.prerequest = args.executions[0].script.exec.join('\n');
         }
     }
@@ -96,26 +95,40 @@ class AllureReporter {
     }
 
     request(err, args) {
-        if(err)
-           return;
+        if(err) {
+            return
+        }
         const req = args.request;
         let url = req.url.protocol + "://" + req.url.host.join('.');
         if(req.url.path !== undefined) {
             if(req.url.path.length > 0) {
                 url = url + "/" + req.url.path.join('/');
             }
-        }    
-        const resp_stream = args.response.stream;
+        }
+        const res = args.response;
+        const resp_stream = res.stream;
         const resp_body = Buffer.from(resp_stream).toString();
-        this.runningItems[this.runningItems.length - 1].pm_item.request_data = {url:url, method: req.method, body: req.body};
-        this.runningItems[this.runningItems.length - 1].pm_item.response_data = {status: args.response.status, code: args.response.code, body: resp_body};
+        this.runningItems[this.runningItems.length - 1].pm_item.request_data = {
+            url:url, 
+            method: req.method, 
+            body: req.body, 
+            headers: req.headers
+        };
+        this.runningItems[this.runningItems.length - 1].pm_item.response_data = {
+            status: res.status, 
+            code: res.code, 
+            body: resp_body,
+            headers: res.headers,
+            cookies: res.cookies,
+            responseTime: res.responseTime,
+            responseSize: res.responseSize
+        };
     }
 
     startStep(name) {
         const allureStep = this.currentExecutable.startStep(name);
         this.pushStep(allureStep);
         return this;
-        // return new WrappedStep(this, allureStep);
     }
 
     endStep(status) {
@@ -317,14 +330,11 @@ class AllureReporter {
         }
         if(bodyModeProp === "raw")
         {
-            // bodyModePropObj = this.escape(rItem.pm_item.request_data.body[bodyModeProp]);
             bodyModePropObj = rItem.pm_item.request_data.body[bodyModeProp];
             console.log(bodyModePropObj);
         } else {
             bodyModePropObj = ""
         }
-
-        const reqTableStr = ` <table> <tr> <th style="border: 1px solid #dddddd;text-align: left;padding: 8px;color:Orange;"> ${bodyModeProp} </th> <td style="border: 1px solid #dddddd;text-align: left;padding: 8px;"> <pre style="color:Orange"> <b> ${bodyModePropObj} </b> </pre> </td> </tr>  </table>`;
 
         const responseCodeStatus= rItem.pm_item.response_data.code + " - " + rItem.pm_item.response_data.status;
 
@@ -337,8 +347,36 @@ class AllureReporter {
             testDescription = '';
         }
 
-       
-        this.setDescriptionHtml(`<p style="color:MediumPurple;"> <b> ${testDescription} </b> </p> <h4 style="color:DodgerBlue;"><b><i>Request:</i></b></h4> <p style="color:DodgerBlue"> <b> ${requestDataURL} </b> </p> ${reqTableStr} </p> <h4 style="color:DodgerBlue;"> <b> <i> Response: </i> </b> </h4> <p style="color:DodgerBlue"> <b> ${responseCodeStatus} </b> </p> <p > <pre style="color:Orange;"> <b> ${rItem.pm_item.response_data.body} </b> </pre> </p>`);
+        const reqBodyTable = createDataTableHTML(`BODY - ${bodyModeProp}`, bodyModePropObj);
+        const reqHeaderTable = createDataTableHTML('HEADERS', rItem.pm_item.request_data.headers);
+
+        let responseBody;
+        try {
+            responseBody = JSON.stringify(JSON.parse(rItem.pm_item.response_data.body), null, 4);
+        } catch (err) {
+            responseBody = rItem.pm_item.response_data.body;
+        }
+        const resBodyTable = createDataTableHTML('BODY', responseBody);
+        const resHeaderTable = createDataTableHTML('HEADERS', rItem.pm_item.response_data.headers);
+        const resCookieTable = createDataTableHTML('COOKIES', rItem.pm_item.response_data.cookies);
+
+        this.setDescriptionHtml(`
+            <p>${testDescription}</p>
+
+            <p><h4> Request: </h4></p>
+            <p style="color: #888888">${requestDataURL}</p>
+            <p>${reqHeaderTable}</p>
+            <p>${reqBodyTable}</p>
+
+            <h4> Response: </h4>
+            <p style="color: #888888">Status: ${responseCodeStatus}</p>
+            <p style="color: #888888">Timing: ${rItem.pm_item.response_data.responseTime} ms</p>
+            <p style="color: #888888">Size: ${rItem.pm_item.response_data.responseSize} B</p>
+            <p>${resHeaderTable}</p>
+            <p>${resBodyTable}</p>
+            <p>${resCookieTable}</p>`
+        );
+        
         if (rItem.pm_item.failedAssertions.length > 0 ) {
             const msg = this.escape(rItem.pm_item.failedAssertions.join(", "));
             const details = this.escape(`Response code: ${rItem.pm_item.response_data.code}, status: ${rItem.pm_item.response_data.status}`);
@@ -386,6 +424,17 @@ class AllureReporter {
             .replace('\"', '"');
             //.replace(/[\u0100-\uffff]/g, (c) => `|0x${c.charCodeAt(0).toString(16).padStart(4, "0")}`);
     }
+}
+
+function createDataTableHTML(header, data) {
+    return `<table style="border: 1px solid #dddddd; text-align: left; padding: 8px; border-collapse: unset;">
+        <tr>
+            <th>${header}</th>
+        </tr>
+        <tr>
+            <td><pre>${data}</pre></td>
+        </tr>
+    </table>`;
 }
 
 module.exports = AllureReporter;
