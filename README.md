@@ -5,10 +5,10 @@ A newman reporter for generating nice and clean report using Allure-js framework
 
 ## Installation
 ```console
-global install
+# global install
 $ npm install -g @danvargas46/newman-reporter-allure
 
-local project install
+# local project install
 $ npm install @danvargas46/newman-reporter-allure
 ```
 
@@ -38,6 +38,9 @@ Generate the static report web-application folder using allure-commandline
 
 
 ![Screenshot1](screenshot1.jpg)
+
 ![Screenshot2](screenshot2.jpg)
+
 ![Screenshot3](screenshot3.jpg)
+
 ![Screenshot4](screenshot4.jpg)
