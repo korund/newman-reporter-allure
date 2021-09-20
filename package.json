@@ -1,7 +1,7 @@
 {
-  "name": "newman-reporter-allure",
+  "name": "@danvargas46/newman-reporter-allure",
   "version": "1.0.7",
-  "description": "newman reporter for Allure (includes headers & cookies)",
+  "description": "newman reporter for Allure (adds headers/cookies to report)",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
