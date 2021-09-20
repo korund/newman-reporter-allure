@@ -350,13 +350,13 @@ class AllureReporter {
         const reqBodyTable = createDataTableHTML(`BODY - ${bodyModeProp}`, bodyModePropObj);
         const reqHeaderTable = createDataTableHTML('HEADERS', rItem.pm_item.request_data.headers);
 
-        let responseBody;
+        let responseBodyFormatted;
         try {
-            responseBody = JSON.stringify(JSON.parse(rItem.pm_item.response_data.body), null, 4);
+            responseBodyFormatted = JSON.stringify(JSON.parse(rItem.pm_item.response_data.body), null, 4);
         } catch (err) {
-            responseBody = rItem.pm_item.response_data.body;
+            responseBodyFormatted = rItem.pm_item.response_data.body;
         }
-        const resBodyTable = createDataTableHTML('BODY', responseBody);
+        const resBodyTable = createDataTableHTML('BODY', responseBodyFormatted);
         const resHeaderTable = createDataTableHTML('HEADERS', rItem.pm_item.response_data.headers);
         const resCookieTable = createDataTableHTML('COOKIES', rItem.pm_item.response_data.cookies);
 
