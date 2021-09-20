@@ -5,7 +5,11 @@ A newman reporter for generating nice and clean report using Allure-js framework
 
 ## Installation
 ```console
+global install
 $ npm install -g @danvargas46/newman-reporter-allure
+
+local project install
+$ npm install @danvargas46/newman-reporter-allure
 ```
 
 ## Added Functionality
