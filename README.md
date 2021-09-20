@@ -5,10 +5,10 @@ A newman reporter for generating nice and clean report using Allure-js framework
 
 ## Installation
 ```bash
-$ # global install
+# global install
 $ npm install -g @danvargas46/newman-reporter-allure
 
-$ # local project install
+# local project install
 $ npm install @danvargas46/newman-reporter-allure
 ```
 
