@@ -4,7 +4,7 @@ This is a fork of https://github.com/ervirendersingh/newman-reporter-allure
 A newman reporter for generating nice and clean report using Allure-js framework
 
 ## Installation
-```console
+```bash
 # global install
 $ npm install -g @danvargas46/newman-reporter-allure
 
@@ -18,7 +18,7 @@ This fork includes more information in the results, such as the request and resp
 ## Usage
 To generate Allure results, specify `allure` in Newman's `-r` or `--reporters` option.
 
-```console
+```bash
 $ newman run <Collection> -e <Environment> -r allure
 $ newman run <Collection> -e <Environment> -r allure --reporter-allure-export <allure-results-out-dir>
 ```
@@ -27,20 +27,20 @@ $ newman run <Collection> -e <Environment> -r allure --reporter-allure-export <a
 
 Allure results will be generated under folder "allure-results" in the root location.
 Use allure-commandline to serve the report locally.
-  ```console
+  ```bash
   $ allure serve
   ```
 Generate the static report web-application folder using allure-commandline 
- ```console
+ ```bash
   $ allure generate --clean
   ```
   Report will be generated under folder "allure-report" in the root location.
 
 
-![Screenshot1](screenshot1.jpg)
+![Screenshot1](screenshot1.png)
 
-![Screenshot2](screenshot2.jpg)
+![Screenshot2](screenshot2.png)
 
-![Screenshot3](screenshot3.jpg)
+![Screenshot3](screenshot3.png)
 
-![Screenshot4](screenshot4.jpg)
+![Screenshot4](screenshot4.png)
