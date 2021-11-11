@@ -1,7 +1,7 @@
 {
-  "name": "@danvargas46/newman-reporter-allure",
-  "version": "1.0.7",
-  "description": "newman reporter for Allure (adds headers/cookies to report)",
+  "name": "newman-reporter-allure",
+  "version": "1.0.8",
+  "description": "newman reporter for Allure",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -17,9 +17,9 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/dvargas46/newman-reporter-allure.git"
+    "url": "https://github.com/cmttwd/newman-reporter-allure.git"
   },
-  "author": "Dan Vargas",
+  "author": "cmttwd",
   "license": "ISC",
   "dependencies": {
     "allure-js-commons": "^2.0.0-beta.6",
