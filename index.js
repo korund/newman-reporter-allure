@@ -377,6 +377,14 @@ class AllureReporter {
     }
 
     item(err, args) {
+
+        // FullName
+        var path = this.getFullName(this.currentNMGroup);
+        var testName = args.item.name;
+        if (path !== undefined && testName !== undefined) {
+            this.currentExecutable.fullName = (path + '/' + testName);
+        }
+
         const rItem = this.runningItems[this.runningItems.length - 1];
         if (rItem.pm_item.prerequest !== '') {
             this.attachPrerequest(rItem.pm_item.prerequest);
