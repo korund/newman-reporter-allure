@@ -4,7 +4,7 @@ This is a fork of https://github.com/dvargas46/newman-reporter-allure
 
 
 Реализована поддержка Allure TestOps:
-- Добавлены следующие Labels: testClass, testMethod, epic, owner.
+- Добавлены следующие Labels: testClass, testMethod, epic, owner, layer.
 - Изменена логика формирования story и suite.
 
 Отсуттвуют проблемы с формированием русскоязычных имён тестов.
@@ -21,13 +21,14 @@ $ npm install -g https://github.com/cmttwd/newman-reporter-allure.git
 ```bash
 $ newman run <Collection> -e <Environment> -r allure
 $ newman run <Collection> -e <Environment> -r allure --reporter-allure-export <allure-results-out-dir>
-$ newman run <Collection> -e <Environment> -r allure --reporter-allure-export <allure-results-out-dir> --reporter-allure-epic <Epic name> --reporter-allure-owner <Owner name>
+$ newman run <Collection> -e <Environment> -r allure --reporter-allure-export <allure-results-out-dir> --reporter-allure-epic <Epic name> --reporter-allure-owner <Owner name> --reporter-allure-layer <Layer>
 ```
 
 ```bash
 --reporter-allure-export <allure-results-out-dir> - путь результов отчета
 --reporter-allure-epic <Epic name> - установка параметра Epic для всех тестов запуска
 --reporter-allure-owner <Owner name> - установка Владельца/Ответсвенного для всех тестов запуска
+--reporter-allure-layer <Layer> - доп параметр
 ```
 
 ## Генерация отчета

@@ -293,6 +293,11 @@ class AllureReporter {
             allure_test.addLabel(LabelName.OWNER, owner);
         }
 
+        // Labels: layer
+        var layer = c_args.get('layer');
+        if (layer !== undefined) {
+            allure_test.addLabel('layer', layer);
+        }
 
         this.runningItems.push({
             name: fullName,
