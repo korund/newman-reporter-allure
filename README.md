@@ -9,6 +9,7 @@ This is a fork of https://github.com/dvargas46/newman-reporter-allure
 
 Отсуттвуют проблемы с формированием русскоязычных имён тестов.
 
+Добавлена обработка test-scripts errors.
 
 ## Установка
 

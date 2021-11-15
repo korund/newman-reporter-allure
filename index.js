@@ -147,12 +147,22 @@ class AllureReporter {
         if (err) {
             this.runningItems[this.runningItems.length - 1].pm_item.passed = false;
             this.runningItems[this.runningItems.length - 1].pm_item.failedAssertions.push(args.assertion);
+            this.runningItems[this.runningItems.length - 1].pm_item.error = err;
             curStep.endStep(Status.FAILED);
         } else {
             curStep.endStep(Status.PASSED);
         }
     }
 
+    script(err, arg){
+        if (err) {
+            const curStep = this.startStep("ScriptError");
+            this.runningItems[this.runningItems.length - 1].pm_item.passed = false;
+            this.runningItems[this.runningItems.length - 1].pm_item.failedAssertions.push(err.name);
+            this.runningItems[this.runningItems.length - 1].pm_item.error = err;
+            curStep.endStep(Status.FAILED);
+        }
+    }
 
     done(err, args) {
         if (this.currentSuite !== null) {
@@ -452,12 +462,12 @@ class AllureReporter {
 
         if (rItem.pm_item.failedAssertions.length > 0) {
             const msg = this.escape(rItem.pm_item.failedAssertions.join(", "));
-            const details = this.escape(`Response code: ${rItem.pm_item.response_data.code}, status: ${rItem.pm_item.response_data.status}`);
+            const details = rItem.pm_item.error.message;
 
             this.failTestCase(rItem.allure_test, {
                 name: "AssertionError",
                 message: msg,
-                trace: details,
+                stack: details,
             });
 
         } else {
