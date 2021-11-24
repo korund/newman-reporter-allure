@@ -11,6 +11,8 @@ This is a fork of https://github.com/dvargas46/newman-reporter-allure
 
 Добавлена обработка test-scripts errors.
 
+Добавлена возможность установки статуса "SKIPPED" через 'pm.test.skip("Skip message")'.
+
 ## Установка
 
 ```bash

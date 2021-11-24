@@ -144,7 +144,13 @@ class AllureReporter {
     assertion(err, args) {
         const stepName = args.assertion;
         const curStep = this.startStep(stepName);
-        if (err) {
+
+        if (args.skipped){
+            this.runningItems[this.runningItems.length - 1].pm_item.skipped = true;
+            this.runningItems[this.runningItems.length - 1].pm_item.failedAssertions.push(args.assertion);
+            this.runningItems[this.runningItems.length - 1].pm_item.error = args.assertion;
+            curStep.endStep(Status.FAILED);
+        } else if (err) {
             this.runningItems[this.runningItems.length - 1].pm_item.passed = false;
             this.runningItems[this.runningItems.length - 1].pm_item.failedAssertions.push(args.assertion);
             this.runningItems[this.runningItems.length - 1].pm_item.error = err;
@@ -379,10 +385,13 @@ class AllureReporter {
     failTestCase(allure_test, error) {
         const latestStatus = allure_test.status;
         // if test already has a failed state, we should not overwrite it
-        if (latestStatus === Status.FAILED || latestStatus === Status.BROKEN) {
+        if (latestStatus === Status.FAILED || latestStatus === Status.BROKEN || latestStatus === Status.SKIPPED) {
             return;
         }
-        const status = error.name === "AssertionError" ? Status.FAILED : Status.BROKEN;
+
+        var status = error.name === "AssertionError" ? Status.FAILED : Status.BROKEN;
+        if (error.skipped) status = Status.SKIPPED;
+
         this.endTest(allure_test, status, {message: error.message, trace: error.stack});
     }
 
@@ -468,6 +477,7 @@ class AllureReporter {
                 name: "AssertionError",
                 message: msg,
                 stack: details,
+                skipped: rItem.pm_item.skipped
             });
 
         } else {
