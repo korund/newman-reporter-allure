@@ -389,10 +389,19 @@ class AllureReporter {
             return;
         }
 
-        var status = error.name === "AssertionError" ? Status.FAILED : Status.BROKEN;
-        if (error.skipped) status = Status.SKIPPED;
+        var status;
+        var message = error.message;
+        var stack = error.stack;
 
-        this.endTest(allure_test, status, {message: error.message, trace: error.stack});
+        if (error.skipped){
+            status = Status.SKIPPED;
+            message = "SKIPPED";
+            stack = "";
+        } else {
+            status = error.name === "AssertionError" ? Status.FAILED : Status.BROKEN;
+        }
+
+        this.endTest(allure_test, status, {message: message, trace: stack});
     }
 
     item(err, args) {
