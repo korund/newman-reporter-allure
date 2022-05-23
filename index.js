@@ -463,8 +463,10 @@ class AllureReporter {
         }
 
         // Ограничение в прикреплении большого тела ответа
-        if (responseBodyFormatted.length > 100000){
-            responseBodyFormatted = "< Body size: " + responseBodyFormatted.length + " >";
+        let responseBodySize = responseBodyFormatted.length;
+
+        if (responseBodySize > 100000){
+            responseBodyFormatted = responseBodyFormatted.substring(0, 50000) + "\n\n< Body size: " + responseBodySize + " >";
         }
 
         const resBodyTable = createDataTableHTML('BODY', responseBodyFormatted);
