@@ -414,15 +414,19 @@ class AllureReporter {
         }
 
         const rItem = this.runningItems[this.runningItems.length - 1];
+
         if (rItem.pm_item.prerequest !== '') {
             this.attachPrerequest(rItem.pm_item.prerequest);
         }
+
         if (rItem.pm_item.testscript !== '') {
             this.attachTestScript(rItem.pm_item.testscript);
         }
+
         if (rItem.pm_item.console_logs.length > 0) {
             this.attachConsoleLogs(rItem.pm_item.console_logs);
         }
+
         const requestDataURL = rItem.pm_item.request_data.method + " - " + rItem.pm_item.request_data.url;
         let bodyModeProp = '';
         let bodyModePropObj;
@@ -432,7 +436,7 @@ class AllureReporter {
         }
         if (bodyModeProp === "raw") {
             bodyModePropObj = rItem.pm_item.request_data.body[bodyModeProp];
-            console.log(bodyModePropObj);
+//            console.log(bodyModePropObj); // Вывод в консоль тела запроса
         } else {
             bodyModePropObj = ""
         }
@@ -457,6 +461,14 @@ class AllureReporter {
         } catch (err) {
             responseBodyFormatted = rItem.pm_item.response_data.body;
         }
+
+        // Ограничение в прикреплении большого тела ответа
+        let responseBodySize = responseBodyFormatted.length;
+
+        if (responseBodySize > 100000){
+            responseBodyFormatted = responseBodyFormatted.substring(0, 50000) + "\n\n< Body size: " + responseBodySize + " >";
+        }
+
         const resBodyTable = createDataTableHTML('BODY', responseBodyFormatted);
         const resHeaderTable = createDataTableHTML('HEADERS', rItem.pm_item.response_data.headers);
         const resCookieTable = createDataTableHTML('COOKIES', rItem.pm_item.response_data.cookies);
@@ -464,12 +476,12 @@ class AllureReporter {
         this.setDescriptionHtml(`
             <p>${testDescription}</p>
 
-            <p><h4> Request: </h4></p>
+            <p><h3 style="color: #DC143C"> >>>>>>>>>>>>> Request >>>>>>>>>>>>> </h3></p>
             <p style="color: #888888">${requestDataURL}</p>
             <p>${reqHeaderTable}</p>
             <p>${reqBodyTable}</p>
 
-            <h4> Response: </h4>
+            <h3 style="color: #DC143C"> <<<<<<<<<<<< Response <<<<<<<<<<<< </h3>
             <p style="color: #888888">Status: ${responseCodeStatus}</p>
             <p style="color: #888888">Timing: ${rItem.pm_item.response_data.responseTime} ms</p>
             <p style="color: #888888">Size: ${rItem.pm_item.response_data.responseSize} B</p>
@@ -530,14 +542,16 @@ class AllureReporter {
 }
 
 function createDataTableHTML(header, data) {
-    return `<table style="border: 1px solid #dddddd; text-align: left; padding: 8px; border-collapse: unset;">
-        <tr>
-            <th>${header}</th>
-        </tr>
-        <tr>
-            <td><pre>${data}</pre></td>
-        </tr>
-    </table>`;
+    return `<div>
+                <table style="border: 1px solid #dddddd; text-align: left; padding: 2px; border-collapse: unset;">
+                    <tr>
+                        <th>${header}</th>
+                    </tr>
+                    <tr>
+                        <td><pre>${data}</pre></td>
+                    </tr>
+                </table>
+            </div>`;
 }
 
 module.exports = AllureReporter;
