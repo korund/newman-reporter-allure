@@ -148,12 +148,12 @@ class AllureReporter {
         if (args.skipped){
             this.runningItems[this.runningItems.length - 1].pm_item.skipped = true;
             this.runningItems[this.runningItems.length - 1].pm_item.failedAssertions.push(args.assertion);
-            this.runningItems[this.runningItems.length - 1].pm_item.error = args.assertion;
+            this.runningItems[this.runningItems.length - 1].pm_item.errors.push(err);
             curStep.endStep(Status.FAILED);
         } else if (err) {
             this.runningItems[this.runningItems.length - 1].pm_item.passed = false;
             this.runningItems[this.runningItems.length - 1].pm_item.failedAssertions.push(args.assertion);
-            this.runningItems[this.runningItems.length - 1].pm_item.error = err;
+            this.runningItems[this.runningItems.length - 1].pm_item.errors.push(err);
             curStep.endStep(Status.FAILED);
         } else {
             curStep.endStep(Status.PASSED);
@@ -165,16 +165,13 @@ class AllureReporter {
             const curStep = this.startStep("ScriptError");
             this.runningItems[this.runningItems.length - 1].pm_item.passed = false;
             this.runningItems[this.runningItems.length - 1].pm_item.failedAssertions.push(err.name);
-            this.runningItems[this.runningItems.length - 1].pm_item.error = err;
+            this.runningItems[this.runningItems.length - 1].pm_item.errors.push(err);
             curStep.endStep(Status.FAILED);
         }
     }
 
     done(err, args) {
         if (this.currentSuite !== null) {
-            // if (this.currentStep !== null) {
-            //   this.currentStep.endStep();
-            // }
             this.currentSuite.endGroup();
             this.popSuite();
         }
@@ -186,7 +183,8 @@ class AllureReporter {
             name: this.itemName(args.item, args.cursor),
             passed: true,
             failedAssertions: [],
-            console_logs: []
+            console_logs: [],
+            errors: []
         };
 
         if (this.currentSuite === null) {
@@ -491,8 +489,15 @@ class AllureReporter {
         );
 
         if (rItem.pm_item.failedAssertions.length > 0) {
+
+            // Сообщение об ошибке (перечисление всех ассертов)
             const msg = this.escape(rItem.pm_item.failedAssertions.join(", "));
-            const details = rItem.pm_item.error.message;
+
+            // StackTrace всех ассертов
+            const details = rItem.pm_item.errors
+                    .filter(e => e != null)
+                    .map(e => e.test + "\n" + e.message + "\n")
+                    .join("\n");
 
             this.failTestCase(rItem.allure_test, {
                 name: "AssertionError",
