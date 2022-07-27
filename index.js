@@ -474,12 +474,12 @@ class AllureReporter {
         this.setDescriptionHtml(`
             <p>${testDescription}</p>
 
-            <p><h3 style="color: #DC143C"> >>>>>>>>>>>>> Request >>>>>>>>>>>>> </h3></p>
+            <p><h3 style="color: #DC143C">  Request  </h3></p>
             <p style="color: #888888">${requestDataURL}</p>
             <p>${reqHeaderTable}</p>
             <p>${reqBodyTable}</p>
 
-            <h3 style="color: #DC143C"> <<<<<<<<<<<< Response <<<<<<<<<<<< </h3>
+            <h3 style="color: #DC143C">  Response  </h3>
             <p style="color: #888888">Status: ${responseCodeStatus}</p>
             <p style="color: #888888">Timing: ${rItem.pm_item.response_data.responseTime} ms</p>
             <p style="color: #888888">Size: ${rItem.pm_item.response_data.responseSize} B</p>
