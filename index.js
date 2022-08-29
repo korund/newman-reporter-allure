@@ -75,13 +75,16 @@ class AllureReporter {
 
     prerequest(err, args) {
         if (args.executions != undefined && _.isArray(args.executions) && args.executions.length > 0) {
-            this.runningItems[this.runningItems.length - 1].pm_item.prerequest = args.executions[0].script.exec.join('\n');
+            this.runningItems[this.runningItems.length - 1].pm_item.prerequest = args.executions.reduce(
+              (last, current) => last.concat(current.script.exec), []).join('\n');
         }
     }
 
     test(err, args) {
-        if (args.executions != undefined && _.isArray(args.executions) && args.executions.length > 0)
-            this.runningItems[this.runningItems.length - 1].pm_item.testscript = args.executions[0].script.exec.join('\n');
+        if (args.executions != undefined && _.isArray(args.executions) && args.executions.length > 0) {
+            this.runningItems[this.runningItems.length - 1].pm_item.testscript = args.executions.reduce(
+              (last, current) => last.concat(current.script.exec), []).join('\n');
+        }
     }
 
     console(err, args) {
