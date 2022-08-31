@@ -267,10 +267,10 @@ class AllureReporter {
             allure_test.addLabel(LabelName.FEATURE, parentSuite);
         }
 
-        // Labels: story
+        // Labels: suite
         if (suite !== undefined) {
             suite = suite.charAt(0).toUpperCase() + suite.slice(1);
-            allure_test.addLabel(LabelName.STORY, suite);
+            allure_test.addLabel(LabelName.SUITE, suite);
         }
 
         // Labels: subSuite
@@ -285,7 +285,7 @@ class AllureReporter {
             }
         }
 
-        // Labels: suite
+        // Labels: story
         let path;
         if (args.item.request.url.path !== undefined) {
             if (args.item.request.url.path.length > 0) {
@@ -293,7 +293,7 @@ class AllureReporter {
             }
         }
         if (path !== undefined)
-            allure_test.addLabel(LabelName.SUITE, path);
+            allure_test.addLabel(LabelName.STORY, path);
 
 
         var c_args = new Map (Object.entries(this.reporterOptions));
