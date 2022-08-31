@@ -414,103 +414,83 @@ class AllureReporter {
             this.currentExecutable.fullName = (path + '/' + testName);
         }
 
-        const rItem = this.runningItems[this.runningItems.length - 1];
+        const { pm_item: current, allure_test: test } = this.runningItems.at(-1);
 
-        if (rItem.pm_item.prerequest !== '') {
-            this.attachPrerequest(rItem.pm_item.prerequest);
+        if (current.prerequest !== '') {
+            this.attachPrerequest(current.prerequest);
         }
 
-        if (rItem.pm_item.testscript !== '') {
-            this.attachTestScript(rItem.pm_item.testscript);
+        if (current.testscript !== '') {
+            this.attachTestScript(current.testscript);
         }
 
-        if (rItem.pm_item.console_logs.length > 0) {
-            this.attachConsoleLogs(rItem.pm_item.console_logs);
+        if (current.console_logs.length > 0) {
+            this.attachConsoleLogs(current.console_logs);
         }
 
-        const requestDataURL = rItem.pm_item.request_data.method + " - " + rItem.pm_item.request_data.url;
-        let bodyModeProp = '';
-        let bodyModePropObj;
-
-        if (rItem.pm_item.request_data.body !== undefined) {
-            bodyModeProp = rItem.pm_item.request_data.body.mode;
-        }
-        if (bodyModeProp === "raw") {
-            bodyModePropObj = rItem.pm_item.request_data.body[bodyModeProp];
-//            console.log(bodyModePropObj); // Вывод в консоль тела запроса
-        } else {
-            bodyModePropObj = ""
-        }
-
-        const responseCodeStatus = rItem.pm_item.response_data.code + " - " + rItem.pm_item.response_data.status;
-
-        var testDescription;
+        let testDescription;
         if (args.item.request.description !== undefined) {
             testDescription = args.item.request.description.content;
             testDescription = testDescription.replace(/[*]/g, "");
-            testDescription = testDescription.replace(/\n/g, "<br>")
+            testDescription = testDescription.replace(/\n/g, "<br/>")
         } else {
             testDescription = '';
         }
 
-        const reqBodyTable = createDataTableHTML(`BODY - ${bodyModeProp}`, bodyModePropObj);
-        const reqHeaderTable = createDataTableHTML('HEADERS', rItem.pm_item.request_data.headers);
+        const bodyModeProp = (current.request_data.body !== undefined) ? current.request_data.body.mode : '';
+        const bodyModePropObj = current.request_data.body[bodyModeProp];
 
         let responseBodyFormatted;
         try {
-            responseBodyFormatted = JSON.stringify(JSON.parse(rItem.pm_item.response_data.body), null, 4);
+            responseBodyFormatted = JSON.stringify(JSON.parse(current.response_data.body), null, 2);
         } catch (err) {
-            responseBodyFormatted = rItem.pm_item.response_data.body;
+            responseBodyFormatted = current.response_data.body;
         }
 
         // Ограничение в прикреплении большого тела ответа
-        let responseBodySize = responseBodyFormatted.length;
-
-        if (responseBodySize > 100000){
-            responseBodyFormatted = responseBodyFormatted.substring(0, 50000) + "\n\n< Body size: " + responseBodySize + " >";
+        const responseBodySize = responseBodyFormatted.length;
+        if (responseBodySize > 100000) {
+            responseBodyFormatted = responseBodyFormatted.substring(0, 50000) + "...\n\n< Body size: " + responseBodySize + " >";
         }
 
-        const resBodyTable = createDataTableHTML('BODY', responseBodyFormatted);
-        const resHeaderTable = createDataTableHTML('HEADERS', rItem.pm_item.response_data.headers);
-        const resCookieTable = createDataTableHTML('COOKIES', rItem.pm_item.response_data.cookies);
+        this.setDescriptionHtml(
+            `<p>${testDescription}</p>
+            <div>
+                <h3>Request</h3>
+                <p>${current.request_data.method} - <a href="${current.request_data.url}">${current.request_data.url}</a></p>
+                ${createDescriptionItemHtml('Headers', { data: current.request_data.headers })}
+                ${createDescriptionItemHtml(`Body - ${bodyModeProp.toUpperCase()}`, { data: bodyModePropObj })}
+            </div>
+            <div>
+                <h3>Response</h3>
+                <p>Status: HTTP ${current.response_data.code} - ${current.response_data.status}</p>
+                <p>Timing: ${current.response_data.responseTime} ms</p>
+                <p>Size: ${current.response_data.responseSize} B</p>
+                ${createDescriptionItemHtml('Headers', { data: current.response_data.headers })}
+                ${createDescriptionItemHtml('Cookies', { data: current.response_data.cookies })}
+                ${createDescriptionItemHtml('Body', { data: responseBodyFormatted })}
+            </div>`);
 
-        this.setDescriptionHtml(`
-            <p>${testDescription}</p>
-
-            <p><h3 style="color: #DC143C">  Request  </h3></p>
-            <p style="color: #888888">${requestDataURL}</p>
-            <p>${reqHeaderTable}</p>
-            <p>${reqBodyTable}</p>
-
-            <h3 style="color: #DC143C">  Response  </h3>
-            <p style="color: #888888">Status: ${responseCodeStatus}</p>
-            <p style="color: #888888">Timing: ${rItem.pm_item.response_data.responseTime} ms</p>
-            <p style="color: #888888">Size: ${rItem.pm_item.response_data.responseSize} B</p>
-            <p>${resHeaderTable}</p>
-            <p>${resBodyTable}</p>
-            <p>${resCookieTable}</p>`
-        );
-
-        if (rItem.pm_item.failedAssertions.length > 0) {
+        if (current.failedAssertions.length > 0) {
 
             // Сообщение об ошибке (перечисление всех ассертов)
-            const msg = this.escape(rItem.pm_item.failedAssertions.join(", "));
+            const msg = this.escape(current.failedAssertions.join(", "));
 
             // StackTrace всех ассертов
-            const details = rItem.pm_item.errors
+            const details = current.errors
                     .filter(e => e != null)
                     .map(e => e.test + "\n" + e.message + "\n")
                     .join("\n");
 
-            this.failTestCase(rItem.allure_test, {
+            this.failTestCase(test, {
                 name: "AssertionError",
                 message: msg,
                 stack: details,
-                skipped: rItem.pm_item.skipped
+                skipped: current.skipped
             });
 
         } else {
-            this.passTestCase(rItem.allure_test);
+            this.passTestCase(test);
         }
         this.runningItems.pop();
     }
@@ -549,16 +529,18 @@ class AllureReporter {
     }
 }
 
-function createDataTableHTML(header, data) {
+function createDescriptionItemHtml(title, {data, labels}) {
+    let details = '';
+    if (labels && labels instanceof Array) {
+        details = labels.map(item => `<p>${item.label}: ${item.info}</p>`).join('\n');
+        details = `<div>${details}</div>`;
+    }
     return `<div>
-                <table style="border: 1px solid #dddddd; text-align: left; padding: 2px; border-collapse: unset;">
-                    <tr>
-                        <th>${header}</th>
-                    </tr>
-                    <tr>
-                        <td><pre>${data}</pre></td>
-                    </tr>
-                </table>
+                <h4>${title}</h4> 
+                <div>
+                    ${details}
+                    <pre style="padding: 5px; background-color: #f8f8f9; ">${data}</pre>
+                </div>
             </div>`;
 }
 
